@@ -1,7 +1,7 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { ClerkProvider } from '@clerk/clerk-react';
-import { ThemeProvider } from './contexts/ThemeContext';
+import { ThemeProvider, useTheme } from './contexts/ThemeContext';
 import LandingPage from './Pages/LandingPage/LandingPage';
 import Home from './Pages/Home/Home';
 import DashboardLayout from './components/ClearkComponents/DashboardLayout';
@@ -26,6 +26,12 @@ import TermsAndConditions from './Pages/TermsAndConditions/TermsAndConditions';
 import PrivacyPolicy from './Pages/PrivacyPolicy/PrivacyPolicy';
 import RefundPolicy from './Pages/RefundPolicy/RefundPolicy';
 import DonatePage from './Pages/DonatePage/DonatePage';
+import VoiceBasedAssistant from './Pages/Services/VoiceAssistant/VoiceAssistant'
+import { dark } from '@clerk/themes';
+import CodeIndex from './Pages/Services/CodeGenrator/IndexCodeGenerator';
+import ReactCodeGenerator from "./Pages/Services/CodeGenrator/ReactCodeGenerator/ReactCodeGenerator";
+import ProtectedFullWidthLayout from './components/Layouts/ProtectedFullLayout ';
+import { Builder } from './Pages/Services/CodeGenrator/ReactCodeGenerator/Builder';
 
 // Clerk Publishable Key
 const PUBLISHABLE_KEY = NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
@@ -36,11 +42,10 @@ if (!PUBLISHABLE_KEY) {
 
 function App() {
   return (
-    <ClerkProvider publishableKey={ PUBLISHABLE_KEY }>
-      <ThemeProvider>
+    <ThemeProvider>
+      <ClerkThemeWrapper>
         <BrowserRouter>
           <div className="app-container">
-
             <Routes>
               <Route path="/" element={ <Home /> } />
               <Route path='/sign-up/*' element={ <SignUp /> } />
@@ -51,10 +56,11 @@ function App() {
                 <Route path='/privacy-policy' element={ <PrivacyPolicy /> } />
                 <Route element={ <Pricing /> } path='/pricing' />
                 <Route element={ <RefundPolicy /> } path='/refund-policy' />
-
               </Route>
+
+              {/* Regular dashboard routes with sidebar */ }
               <Route element={ <DashboardLayout /> }>
-                <Route path="/dashboard" element={ <Dashboard /> } >
+                <Route path="/dashboard" element={ <Dashboard /> }>
                   <Route index element={ <DashboardIndex /> } />
                   <Route path="conversation" element={ <Conversation /> } />
                   <Route path="image-generation" element={ <ImageGeneration /> } />
@@ -63,14 +69,45 @@ function App() {
                   <Route path='joke-generator' element={ <JokeGenerator /> } />
                   <Route path='translator' element={ <Translator /> } />
                   <Route path='QR-Code-Generator' element={ <QRCodeGenerator /> } />
+                  <Route path="Voice-Based-Assistant" element={ <VoiceBasedAssistant /> } />
                   <Route path='dictionary' element={ <Dictionary /> } />
+                  <Route path='codegenerator' element={ <CodeIndex /> } />
                 </Route>
               </Route>
-            </Routes>
 
+              {/* Protected full-width routes (no sidebar) */ }
+              <Route element={ <ProtectedFullWidthLayout /> }>
+                <Route path='/builder' element={ <Builder /> } />
+                <Route path='/dashboard/codegenerator/react' element={ <ReactCodeGenerator /> } />
+              </Route>
+            </Routes>
+            <Toaster />
           </div>
         </BrowserRouter>
-      </ThemeProvider>
+      </ClerkThemeWrapper>
+    </ThemeProvider>
+  );
+}
+
+// Separate component to handle Clerk theme
+function ClerkThemeWrapper({ children }) {
+  const { theme } = useTheme();
+
+  return (
+    <ClerkProvider
+      publishableKey={ PUBLISHABLE_KEY }
+      appearance={ {
+        baseTheme: theme === 'dark' ? dark : undefined,
+        variables: {
+          colorPrimary: theme === 'dark' ? '#ffffff' : '#000000',
+        },
+        elements: {
+          formButtonPrimary: 'bg-primary text-primary-foreground hover:bg-primary/90',
+          card: `bg-${theme === 'dark' ? 'background/80' : 'background'}`,
+        }
+      } }
+    >
+      { children }
     </ClerkProvider>
   );
 }

@@ -1,4 +1,4 @@
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
     Home,
@@ -11,14 +11,17 @@ import {
     Languages,
     BookOpen,
     Speech,
-    QrCode
+    QrCode,
+    AudioLines
 } from 'lucide-react';
 import { useTheme } from '../../contexts/ThemeContext';
+
 
 const menuItems = [
     { icon: Home, label: 'Dashboard', path: '/dashboard' },
     { icon: MessageSquare, label: 'Conversation', path: '/dashboard/conversation' },
     { icon: Image, label: 'Image Generation', path: '/dashboard/image-generation' },
+    { icon: AudioLines, label: 'Voice Based Assistant', path: '/dashboard/Voice-Based-Assistant' },
     { icon: Mic, label: 'Text to Speech', path: '/dashboard/text-to-speech' },
     { icon: Smile, label: 'Joke Generator', path: '/dashboard/joke-generator' },
     { icon: Languages, label: 'Translator', path: '/dashboard/translator' },
@@ -35,12 +38,13 @@ export const Sidebar = ({ onClose }) => {
     const location = useLocation();
     const { theme } = useTheme();
     const isDark = theme === 'dark';
+    const navigate = useNavigate();
 
     return (
-        <div className={ `w-64 h-screen ${isDark ? 'bg-gray-900 border-gray-700' : 'bg-white border-gray-200'
+        <div className={ `w-64 h-screen  overflow-y-auto  ${isDark ? 'bg-gray-900 border-gray-700' : 'bg-white border-gray-200'
             } border-r p-4` }>
             <div className="flex items-center justify-between mb-8">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 cursor-pointer" onClick={ () => navigate('/') }>
                     <Settings className="w-6 h-6 text-purple-600" />
                     <span className="text-xl font-bold bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">
                         Evolve AI
